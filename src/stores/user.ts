@@ -1,11 +1,11 @@
 import {defineStore} from "pinia";
-import { reactive,defineAsyncComponent} from "vue";
-import router from "@/router/index"
+import { defineAsyncComponent, ref} from "vue";
+import router from "@/router";
 import axios from "axios";
 import type {RouteRecordRaw} from "vue-router";
 import MainLayout from "@/components/pageLayout/mainLayout.vue";
 export const useUserStore=defineStore("user", () => {
-    const user = reactive({
+    const userInfo = ref({
         userName: '',
         loginName: "",
         userId: '',
@@ -22,47 +22,13 @@ export const useUserStore=defineStore("user", () => {
 
     })
 
-    const onGetAndSetUser=function (){
-        axios({
-            url:"zuul/oauth/isLogin",
-            method:'get',
-            params:{
-                menuMode:"1"
-            }
-        }).then((res:any)=>{
-            if(res.data.success){
-                const _data=res.data.data
-                user.userName=_data.name
-                user.loginName=_data.loginName
-                user.userId=_data.id
-                user.officeId=_data.officeId
-                user.officeIds=_data.officeIds
-                user.officeGrade=_data.officeGrade
-                user.officeType=_data.officeType
-                user.officeName=_data.officeName
-                user.companyId=_data.companyId
-                user.areaId=_data.areaId
-                user.homeMenuId=_data.homeMenuId
-                user.permission=_data.permission
-                user.menuData=_data.menuList
-                onSetAppRouters(_data.menuList)
-                router.addRoute({
-                    path: '/',
-                    name: 'root',
-                    component: MainLayout,
-                    children:_appRouters
-                })
-              /*  _appRouters.forEach((item)=>{
-                    router.addRoute( item)
-                })*/
-                console.log('咋回事',router.getRoutes())
-                router.push({
-                    name:"root"
-                })
-            }
-         })
-    }
-    const _appRouters:Array<RouteRecordRaw>=[]
+    const _appRouters:Array<RouteRecordRaw>=[
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'notFound',
+            component: () => import('@/views/notFound/notFoundIndex.vue'),
+        },
+    ]
     const onSetAppRouters=function (data:Array<object>){
         try {
             data.forEach((item:any)=>{
@@ -70,7 +36,7 @@ export const useUserStore=defineStore("user", () => {
                     _appRouters.push(  {
                         path: item.path,
                         name: item.name,
-                        component:defineAsyncComponent(()=>import("../views"+item.path+".vue")),
+                        component:defineAsyncComponent(()=>import("../views/"+item.component+".vue")),
                         meta:item
                     })
                 }
@@ -83,5 +49,48 @@ export const useUserStore=defineStore("user", () => {
         }
 
     }
-    return {user,onGetAndSetUser}
+    const  isLogin= function (){
+        return new Promise((resolve, reject)=>{
+            axios({
+                url:"zuul/oauth/isLogin",
+                method:'get',
+                params:{
+                    menuMode:"1"
+                }
+            }).then((res:any)=>{
+                if(res.data.success){
+                    resolve(res.data.data)
+                }else {
+                    resolve(false)
+                }
+            })
+        })
+    }
+    const setUserInfo=function (_data:any){
+        userInfo.value.userName=_data.name
+        userInfo.value.loginName=_data.loginName
+        userInfo.value.userId=_data.id
+        userInfo.value.officeId=_data.officeId
+        userInfo.value.officeIds=_data.officeIds
+        userInfo.value.officeGrade=_data.officeGrade
+        userInfo.value.officeType=_data.officeType
+        userInfo.value.officeName=_data.officeName
+        userInfo.value.companyId=_data.companyId
+        userInfo.value.areaId=_data.areaId
+        userInfo.value.homeMenuId=_data.homeMenuId
+        userInfo.value.permission=_data.permission
+        userInfo.value.menuData=_data.menuList
+        onSetAppRouters(_data.menuList)
+        router.addRoute({
+            path: '/',
+            name: 'root',
+            component: MainLayout,
+            children:_appRouters
+        })
+
+        router.push({
+            name:"root"
+        })
+    }
+    return {userInfo,isLogin,setUserInfo}
 })

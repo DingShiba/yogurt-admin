@@ -38,6 +38,7 @@
 
 <script setup lang="ts">
 import {ref, reactive, onMounted, onUnmounted, inject} from 'vue'
+
 import {useUserStore} from "@/stores/user";
 import qs from 'qs'
 const $http:any=inject("$http")
@@ -56,7 +57,11 @@ const onSubmit=function (){
   }).then((res:any)=>{
     console.log(res)
     if(res.data.success){
-      userStore.onGetAndSetUser()
+      userStore.isLogin().then((res:any)=>{
+        if(res!==false) {
+          userStore.setUserInfo(res)
+        }
+      })
     }
   })
 }

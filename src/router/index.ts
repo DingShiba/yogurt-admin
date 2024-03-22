@@ -1,29 +1,33 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/Login/LoginIndex.vue'
-import MainLayout from "@/components/pageLayout/mainLayout.vue";
-
+import LoginView from '../views/Login/LoginIndex.vue'
+// import NProgress from 'nprogress' // progress bar
+// import 'nprogress/nprogress.css'
+import {useUserStore} from "@/stores/user";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: HomeView
+      component: LoginView
     },
     {
-      path: '/',
-      name: 'root',
-      component: MainLayout
+      path: '/login',
+      name: 'login',
+      component: LoginView
     },
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
-    }
+
   ]
 })
 
+router.beforeEach(async (to,from)=>{
+  const userStore = useUserStore()
+  const _res=await userStore.isLogin()
+  if(!_res && to.name !== 'login'){
+    return { name: 'login' }
+  }else if(userStore.userInfo.loginName==''){
+    userStore.setUserInfo(_res)
+    return true
+  }
+
+})
 export default router
