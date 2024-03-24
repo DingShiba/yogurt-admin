@@ -18,16 +18,6 @@ const router = createRouter({
             path: '/login',
             name: 'login',
             component: LoginView
-        },
-        {
-            path: '/404',
-            name: 'any',
-            component: NotFound
-        },
-        {
-            path: '/:pathMatch(.*)*',
-            name: 'notFound',
-            redirect: "/404"
         }
     ]
 })

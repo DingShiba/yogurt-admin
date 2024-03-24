@@ -27,7 +27,20 @@ export const useUserStore = defineStore("user", () => {
         menuData: '',
     })
 
-    const _appRouters: Array<RouteRecordRaw> = []
+    const _appRouters: Array<RouteRecordRaw> = [
+        {
+            path: '/404',
+            name: 'any',
+            component: NotFound,
+            meta:{}
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'notFound',
+            redirect: "/404",
+            meta:{}
+        }
+    ]
     const onSetAppRouters = function (data: Array<object>) {
         try {
             data.forEach((item: any) => {
