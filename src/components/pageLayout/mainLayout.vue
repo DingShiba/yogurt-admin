@@ -9,6 +9,29 @@
     >
       <a-layout>
         <a-layout-header class="main-layout-header">
+          <div>
+            <a-space class="logo">
+              <img src="/public/logo.png" width="45">
+              <span class="app-title">智慧交通管理系统</span>
+            </a-space>
+          </div>
+          <div class="right-area">
+            <a-space :size="12">
+              <span>{{ clockObj.week }}</span>
+              <div style="text-align: center;">
+                <div>{{ clockObj.day }}</div>
+                <div>{{ clockObj.second }}</div>
+              </div>
+              <a-divider type="vertical"/>
+              <span> 欢迎您，{{ userStore.userInfo.userName }}</span>
+              <a-avatar>
+                <template #icon>
+                  <UserOutlined />
+                </template>
+              </a-avatar>
+              <PoweroffOutlined title="注销系统" @click="logOff"/>
+            </a-space>
+          </div>
         </a-layout-header>
         <a-layout>
           <a-layout-sider v-model:collapsed="collapsed"
@@ -32,10 +55,13 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive , onMounted, VueElement,} from 'vue'
+
+import {ref, reactive, onMounted, VueElement, onUnmounted,} from 'vue'
 import type {MenuProps, ItemType} from 'ant-design-vue';
+import {UserOutlined,PoweroffOutlined} from '@ant-design/icons-vue'
 import router from "@/router";
 import {useUserStore} from "@/stores/user";
+import moment from "moment";
 
 const userStore = useUserStore()
 const collapsed=ref(false)
@@ -55,16 +81,6 @@ function getItem(
   } as ItemType;
 }
 
-const menuData: any = userStore.userInfo.menuData
-
-onMounted(() => {
-  console.log("zala", userStore.userInfo.menuData)
-  // onCreateMenu
-  /*  menuData.forEach((item:any)=>{
-      console.log("哈哈哈",item)
-      _menuData.push(getItem(item.title,item.name,item.icon,item.children))
-    })*/
-})
 const _menuData: Array<any> = []
 
 
@@ -76,18 +92,40 @@ const onCreateMenu = function (result:any,data: any) {
 }
 onCreateMenu(_menuData,userStore.userInfo.menuData)
 const items: ItemType[] = reactive(_menuData)
-console.log("什么啊",items)
-const onGoPage = function () {
-  router.push({
-    path: '/cad/rda/index'
-  })
-}
 // 处理选中
 const onSelect:MenuProps['onSelect']=function (item:any){
   router.push({
     name:item.key
   })
 }
+function logOff(){
+userStore.logOut()
+}
+interface Clock{
+  timer:number,
+  day: string,
+  second: string,
+  week: string
+}
+const  clockObj=reactive({
+  timer:0,
+  day: "",
+  second: "",
+  week: ""
+}) as Clock
+onMounted(()=>{
+  // 获取时钟
+  clockObj.timer=setInterval(()=>{
+    const _clock = moment().format("YYYY-MM-DD HH:mm:ss dddd")
+    const _clockArr = _clock.split(" ")
+    clockObj.day = _clockArr[0]
+    clockObj.second = _clockArr[1]
+    clockObj.week = _clockArr[2]
+  })
+})
+onUnmounted(()=>{
+  if(clockObj.timer) clearInterval(clockObj.timer)
+})
 </script>
 
 <style scoped lang="less">
@@ -97,8 +135,16 @@ const onSelect:MenuProps['onSelect']=function (item:any){
   @layoutSider: #FFFFFF;
   @layoutContentBg: #f5f5f5;
 
+
   .main-layout-header, .main-layout-sider, .main-layout-content {
     transition: background-color 1s ease-in-out;
+  }
+  .main-layout-header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #ffffff;
+    line-height: unset;
   }
 
   .main-layout-sider {

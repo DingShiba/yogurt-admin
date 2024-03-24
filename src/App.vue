@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import zhCN from 'ant-design-vue/es/locale/zh_CN';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
+/*import moment from "moment";
+moment.locale("zh-cn");*/
+
 </script>
 
 <template>
-  <RouterView />
+  <a-config-provider :locale="zhCN">
+    <RouterView />
+  </a-config-provider>
 </template>
 
 <style scoped>

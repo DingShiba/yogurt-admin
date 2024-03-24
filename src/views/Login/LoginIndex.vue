@@ -38,9 +38,10 @@
 
 <script setup lang="ts">
 import {ref, reactive, onMounted, onUnmounted, inject} from 'vue'
-
+import Cookies from "js-cookie";
 import {useUserStore} from "@/stores/user";
 import qs from 'qs'
+import router from "@/router";
 const $http:any=inject("$http")
 const userStore:any=useUserStore()
 const formState=reactive({
@@ -48,6 +49,7 @@ const formState=reactive({
   password:'LESits!@#',
   remember:false
 })
+// const  modules=import.meta.glob("")
 const onSubmit=function (){
   console.log("回调")
   $http({
@@ -57,9 +59,14 @@ const onSubmit=function (){
   }).then((res:any)=>{
     console.log(res)
     if(res.data.success){
+      // console.log("cookie",Cookies.get("LESITSID"))
+      // Cookies.set("LESITSID", res.data.data, { expires: 1 })
       userStore.isLogin().then((res:any)=>{
         if(res!==false) {
           userStore.setUserInfo(res)
+          router.push({
+            path:userStore.userInfo.homePath
+          })
         }
       })
     }
