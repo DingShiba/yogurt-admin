@@ -62,6 +62,7 @@ import {UserOutlined,PoweroffOutlined} from '@ant-design/icons-vue'
 import router from "@/router";
 import {useUserStore} from "@/stores/user";
 import moment from "moment";
+moment.locale('zh-cn')
 
 const userStore = useUserStore()
 const collapsed=ref(false)
