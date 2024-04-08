@@ -26,9 +26,11 @@ export default defineConfig({
     }
   },
   server:{
+    port:8024,
     hmr:{
       overlay:true
     },
+    open: true,
     proxy:{
       '/zuul':{
         target:"http://192.168.110.143:30080",
