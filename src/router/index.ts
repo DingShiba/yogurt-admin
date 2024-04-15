@@ -5,6 +5,7 @@ import 'nprogress/nprogress.css'
 import Cookies from 'js-cookie'
 import {useUserStore} from "@/stores/user";
 import {useAppStore} from '@/stores/app'
+
 const router = createRouter({
     // history: createWebHistory(import.meta.env.BASE_URL),
     history: createWebHashHistory(),

@@ -1,10 +1,10 @@
 import {defineStore} from "pinia";
 import {reactive, ref} from "vue";
 
-import {getEvent} from '@/views/cad/utils/httpInterfaceApi'
-import type {workFlowType,rdaInfoType} from '@/views/cad/types/store'
+import {getDipById, getEvent} from '@/views/cad/utils/httpInterfaceApi'
+import type {rdaInfoInter,transferEventInter} from '@/views/cad/types/store'
 export const useRdaStore = defineStore("rda", () => {
-    const rdaInfo = reactive({
+    const rdaInfo:rdaInfoInter = reactive({
         allDict: {
             alarmGBDict: {},
             officeDict: [],
@@ -33,9 +33,8 @@ export const useRdaStore = defineStore("rda", () => {
             allStep: [],
             targetNodes: []
         },
-        tagColors: ['green', 'pink', 'red', 'orange', 'cyan', 'blue', 'purple'],
         currentEvent: undefined,
-        currentDip:undefined,
+        currentDip: null,
         rdaConfig: {
             isNotFirstUse: false,
             baseForm: {
@@ -72,11 +71,13 @@ export const useRdaStore = defineStore("rda", () => {
         rdaInfo.currentEvent = obj
     }
 
-    function setCurrentDip(obj:any) {
-        rdaInfo.currentDip = obj
+    function setCurrentDip(obj: {flowNode:string,[propName:string]:any} | null) {
+        rdaInfo.currentDip  = obj
         //   根据currentDip变化计算出流程下个节点
-        const _index = rdaInfo.workFlowStep.allStep.findIndex((item:any) => item.name == rdaInfo.currentDip.flowNode)
-        rdaInfo.workFlowStep.targetNodes = _index > -1 ? rdaInfo.workFlowStep.allStep[_index].execute : []
+        const _index = rdaInfo.workFlowStep.allStep.findIndex((item:any) => item.name == (rdaInfo.currentDip as {
+            flowNode:string
+        }).flowNode)
+        rdaInfo.workFlowStep.targetNodes = _index > -1 ? (rdaInfo.workFlowStep.allStep[_index] as any).execute!: []
     }
 
     /*保存流程步骤*/
@@ -84,38 +85,38 @@ export const useRdaStore = defineStore("rda", () => {
         rdaInfo.workFlowStep[obj.key as keyof typeof rdaInfo.workFlowStep] = obj.value
     }
 
-    function setPoliceFlowStep(state, {key, value}) {
-        rdaInfo.value.policeFlowStep[key] = value
+    function setPoliceFlowStep(key:string, value:object[]) {
+        rdaInfo.policeFlowStep[key]  = value
     }
 
     /*保存配置的管辖单位*/
-    function setOfficeChild(state, value) {
-        rdaInfo.value.allDict.officeChild = value
+    function setOfficeChild( value:object[]) {
+        rdaInfo.allDict.officeChild = value
     }
 
-    function setRdaConfig(state, value) {
-        Object.assign(rdaInfo.value.rdaConfig, value)
+    function setRdaConfig( value:object) {
+        Object.assign(rdaInfo.rdaConfig, value)
     }
 
-    function setRdaRole(state, {key, value}) {
-        rdaInfo.value.role[key] = value
+    function setRdaRole(key:string, value:string) {
+        rdaInfo.role[key] = value
     }
 
-    function setPreLoadData(state, {key, value}) {
-        rdaInfo.value.preLoadData[key] = value
+    function setPreLoadData(key:string, value:object[]) {
+        rdaInfo.preLoadData[key] = value
     }
 
-    function setAlarmEntry(state, value) {
-        rdaInfo.value.alarmEntry = value
+    function setAlarmEntry( value: { visible:boolean, ringEvent:any}) {
+        rdaInfo.alarmEntry = value
     }
     function getEventAction(id:string) :Promise<any>{
         return new Promise((resolve, reject) => {
             getEvent(id).then(result => {
                 if (result.data.success) {
-                    let $data = transferEvent(result.data.data)
-                    commit("setCurrentEvent", $data);
+                    const $data = transferEvent(result.data.data)
+                    setCurrentEvent($data)
                 } else {
-                    commit("setCurrentEvent", undefined);
+                    setCurrentEvent(undefined)
                 }
                 resolve(true)
             }).catch(err => {
@@ -123,15 +124,15 @@ export const useRdaStore = defineStore("rda", () => {
             })
         })
     }
-    function getDipAction(dipId:string) :Promise{
+    function getDipAction(dipId:string):Promise<object | boolean> {
         return new Promise((resolve, reject) => {
             try {
-                getDipById(dipId).then(res => {
+                getDipById(dipId).then((res:any) => {
                     if (res.data.success) {
-                        commit("setCurrentDip", res.data.data);
+                        setCurrentDip(res.data.data)
                         resolve(res.data.data)
                     } else {
-                        commit("setCurrentDip", undefined);
+                        setCurrentDip(null)
                         resolve(false)
                     }
                 })
@@ -142,6 +143,16 @@ export const useRdaStore = defineStore("rda", () => {
 
     }
 
+    function transferEvent(obj:transferEventInter):object{
+        obj.officeArray = JSON.parse(<string>obj.officeArray);
+        obj.telPlace = JSON.parse(<string>obj.telPlace)
+        if(typeof obj.vehicles ==='string'){
+            obj.vehicles = obj.vehicles.split('|')
+        }
+        if(obj.gender !='未知' ) obj.gender = obj.gender == '1' ? '男' : '女';
+        obj.details = JSON.parse(<string>obj.details)
+        return obj
+    }
     return {
         rdaInfo,
         setAlarmGBDict,

@@ -90,7 +90,7 @@ export const useUserStore = defineStore("user", () => {
         userInfo.value.companyId = _data.companyId
         userInfo.value.areaId = _data.areaId
         userInfo.value.homeMenuId = _data.homeMenuId
-        userInfo.value.permission = _data.permission
+        userInfo.value.permission = _data.permissions
         userInfo.value.menuData = _data.menuList
         onSetAppRouters(_data.menuList)
         userInfo.value.homePath = findHomePath(_appRouters)

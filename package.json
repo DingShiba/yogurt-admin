@@ -12,9 +12,11 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@stomp/stompjs": "^7.0.0",
     "@types/js-cookie": "^3.0.6",
     "@types/nprogress": "^0.2.3",
     "@types/qs": "^6.9.14",
+    "@types/stompjs": "^2.3.9",
     "ant-design-vue": "^4.1.2",
     "axios": "^1.6.8",
     "js-cookie": "^3.0.5",

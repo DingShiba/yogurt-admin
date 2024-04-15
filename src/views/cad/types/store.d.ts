@@ -1,56 +1,54 @@
-export interface workFlowType{
-    key:string,
-    value?:any
-}
-export interface rdaInfoType{
+
+export interface rdaInfoInter {
     allDict: {
-        alarmGBDict: {},
-        officeDict: [],
-        callType: [],
-        causeArr: [],
-        genderArr: [
-            {
-                label: '男',
-                value: "1"
-            }, {
-                label: '女',
-                value: "0"
-            }
-        ],
-        officeChild: [],
-        eventFrom: [],
-        dutyDict: [],
-        tagDict: []
+        alarmGBDict:object,
+        officeDict:object[],
+        callType: object[],
+        causeArr: object[],
+        genderArr: object[],
+        officeChild: object[],
+        eventFrom: object[],
+        dutyDict: object[],
+        tagDict: object[]
     },
-    JQZLCascader: [],
+    JQZLCascader: Array<object>,
     workFlowStep: {
-        allStep: [],
-        targetNodes: []
+        allStep: object[],
+        targetNodes: object[]
     },
     policeFlowStep: {
-        allStep: [],
-        targetNodes: []
+        [allStep:string]: object[],
+        [targetNodes:string]: object[]
     },
-    tagColors: ['green', 'pink', 'red', 'orange', 'cyan', 'blue', 'purple'],
-    currentEvent: undefined,
-    currentDip:undefined,
+    currentEvent: undefined | object,
+    currentDip: {
+        flowNode:string,
+        [propName:string]:any
+    } | null,
     rdaConfig: {
-        isNotFirstUse: false,
+        isNotFirstUse: boolean,
         baseForm: {
-            isRecive: false,
-            isDip: false,
-            pzUnit: []
+            isRecive: boolean,
+            isDip: boolean,
+            pzUnit: object[]
         }
     },
     role: {
-        WORKFLOW_DEFINITION: undefined,
-        DATA_LEVEL: "TOP"
+        [WORKFLOW_DEFINITION:string]: undefined | string,
+        [DATA_LEVEL:string]: string
     },
     preLoadData: {
-        policeTreeData: []
+        [policeTreeData:string]: object[]
     },
     alarmEntry: {
-        visible: false,
-        ringEvent: null
+        visible:boolean,
+        ringEvent:object|null
     }
+}
+export interface transferEventInter{
+    officeArray?:string | '[]',
+    telPlace?:string | null,
+    vehicles:string | string[],
+    gender?:string | '未知',
+    details?:string | null
 }
