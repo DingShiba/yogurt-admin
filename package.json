@@ -21,6 +21,7 @@
     "axios": "^1.6.8",
     "js-cookie": "^3.0.5",
     "less": "^4.2.0",
+    "maptalks": "^1.0.0-rc.33",
     "moment": "^2.30.1",
     "nprogress": "^0.2.0",
     "pinia": "^2.1.7",
