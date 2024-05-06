@@ -3,106 +3,46 @@
     <a-config-provider
         :theme="{
           token: {
-            colorPrimary: '#165dff',
+            colorPrimary: '#165dff'
           }
         }"
     >
-      <a-layout >
-        <a-layout-sider class="main-layout-sider">
-          <a-menu
-              id="mainMenu"
-              mode="inline"
-              :items="items"
-              @select="onSelect"
-              theme="dark"
-          ></a-menu>
+      <a-layout>
+        <a-layout-sider v-if="layout=='horizontal'"
+                        collapsible
+                        v-model:collapsed="collapsed" style="height: 100vh">
+          <Logo class="side-logo" :collapsed="collapsed"></Logo>
+          <Menu :items="items" class="side-menu"></Menu>
         </a-layout-sider>
         <a-layout>
-          <a-layout-header class="main-layout-header">
-            <div>
-              <a-space class="logo">
-                <img src="/public/logo.png" width="45">
-                <span class="app-title">智慧交通管理系统</span>
-              </a-space>
-            </div>
-            <div class="right-area">
-              <a-space :size="12">
-                <span>{{ clockObj.week }}</span>
-                <div style="text-align: center;">
-                  <div>{{ clockObj.day }}</div>
-                  <div>{{ clockObj.second }}</div>
-                </div>
-                <a-divider type="vertical"/>
-                <span> 欢迎您，{{ userStore.userInfo.userName }}</span>
-                <a-avatar>
-                  <template #icon>
-                    <UserOutlined/>
-                  </template>
-                </a-avatar>
-                <PoweroffOutlined title="注销系统" @click="logOff"/>
-              </a-space>
-            </div>
+          <a-layout-header :style="headerStyle">
+            <Header>
+              <template v-if="layout=='horizontal'" #headerLeft>
+                <span @click="handleToggleSide"
+                      style="cursor: pointer;"
+                      class="trigger-icon"
+                      :class="theme">
+                  <MenuFoldOutlined v-show="!collapsed" :style="{color:theme=='dark-black'?'#fff':'black'}"/>
+                  <MenuUnfoldOutlined v-show="collapsed" :style="{color:theme=='dark-black'?'#fff':'black'}"/>
+                </span>
+              </template>
+            </Header>
           </a-layout-header>
-          <a-layout-content class="main-layout-content">
-            <div class="main-container" :class="mainContentClassName">
-              <router-view/>
-            </div>
-          </a-layout-content>
         </a-layout>
       </a-layout>
-      <!--      <a-layout>
-              <a-layout-header class="main-layout-header">
-                <div>
-                  <a-space class="logo">
-                    <img src="/public/logo.png" width="45">
-                    <span class="app-title">智慧交通管理系统</span>
-                  </a-space>
-                </div>
-                <div class="right-area">
-                  <a-space :size="12">
-                    <span>{{ clockObj.week }}</span>
-                    <div style="text-align: center;">
-                      <div>{{ clockObj.day }}</div>
-                      <div>{{ clockObj.second }}</div>
-                    </div>
-                    <a-divider type="vertical"/>
-                    <span> 欢迎您，{{ userStore.userInfo.userName }}</span>
-                    <a-avatar>
-                      <template #icon>
-                        <UserOutlined />
-                      </template>
-                    </a-avatar>
-                    <PoweroffOutlined title="注销系统" @click="logOff"/>
-                  </a-space>
-                </div>
-              </a-layout-header>
-              <a-layout>
-                <a-layout-sider v-model:collapsed="collapsed"
-                                collapsible class="main-layout-sider">
-                  <a-menu
-                      id="mainMenu"
-                      mode="inline"
-                      :items="items"
-                      @select="onSelect"
-                  ></a-menu>
-                </a-layout-sider>
-                <a-layout-content class="main-layout-content">
-                  <div class="main-container">
-                    <router-view/>
-                  </div>
-                </a-layout-content>
-              </a-layout>
-            </a-layout>-->
     </a-config-provider>
   </div>
 </template>
 
 <script setup lang="ts">
 
-import {ref, reactive, onMounted, VueElement, onUnmounted,computed} from 'vue'
+import {ref, reactive, onMounted, VueElement, onUnmounted, computed} from 'vue'
 import type {MenuProps, ItemType} from 'ant-design-vue';
-import {UserOutlined, PoweroffOutlined} from '@ant-design/icons-vue'
-import router from "@/router";
+import {UserOutlined, PoweroffOutlined,MenuFoldOutlined,MenuUnfoldOutlined} from '@ant-design/icons-vue'
+import Logo from "@/components/pageLayout/logo/logoIndex.vue";
+import Menu from "@/components/pageLayout/menu/menuIndex.vue";
+import Header from "@/components/pageLayout/header/headerIndex.vue";
+
 import {useUserStore} from "@/stores/user";
 import {useAppStore} from "@/stores/app";
 import moment from "moment";
@@ -111,16 +51,33 @@ moment.locale('zh-cn')
 
 const userStore = useUserStore()
 const appStore = useAppStore()
-const collapsed = ref(false)
-const mainContentClassName=computed(()=>{
-  let _className:string="default"
-  const _currentRoute=appStore.appInfo.currentRoute
-  if(_currentRoute.meta.template=="fullScreen"){
-    _className="full-screen"
+const layout:string=appStore.appInfo.layout
+const theme:string=appStore.appInfo.theme
+const headerStyle=computed(()=>{
+  let _style={
+    backgroundColor:'#fff',
+    color:"black",
+    paddingInline:'12px'
   }
-
+  if(theme=='dark-black'){
+    _style={
+      backgroundColor:'#001529',
+      color:"fff",
+      paddingInline:'12px'
+    }
+  }
+  return _style
+})
+const collapsed = ref(false)
+const mainContentClassName = computed(() => {
+  let _className: string = "default"
+  const _currentRoute: any = appStore.appInfo.currentRoute
+  if (_currentRoute.meta.template == "fullScreen") {
+    _className = "full-screen"
+  }
   return _className
 })
+
 function getItem(
     label: VueElement | string,
     key: string,
@@ -148,12 +105,7 @@ const onCreateMenu = function (result: any, data: any) {
 }
 onCreateMenu(_menuData, userStore.userInfo.menuData)
 const items: ItemType[] = reactive(_menuData)
-// 处理选中
-const onSelect: MenuProps['onSelect'] = function (item: any) {
-  router.push({
-    name: item.key
-  })
-}
+
 
 function logOff() {
   userStore.logOut()
@@ -185,6 +137,9 @@ onMounted(() => {
 onUnmounted(() => {
   if (clockObj.timer) clearInterval(clockObj.timer)
 })
+function handleToggleSide():void{
+  collapsed.value=!collapsed.value
+}
 </script>
 
 <style scoped lang="less">
@@ -194,7 +149,17 @@ onUnmounted(() => {
   @layoutSider: #FFFFFF;
   @layoutContentBg: #f5f5f5;
 
-
+  .trigger-icon{
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+/*    &:hover{
+      background-color: rgba(0, 0, 0, 0.06);
+    }
+    &.dark-black:hover{
+      background-color: rgba(0, 0, 0, 0.06);
+    }*/
+  }
   .main-layout-header, .main-layout-sider, .main-layout-content {
     transition: background-color 1s ease-in-out;
   }
@@ -205,16 +170,19 @@ onUnmounted(() => {
     justify-content: space-between;
     color: #ffffff;
     line-height: unset;
+    padding-inline:12px;
   }
 
   .main-layout-sider {
     background-color: @layoutSider;
     height: calc(100vh);
-    #mainMenu{
+
+    #mainMenu {
       height: calc(100vh);
       overflow-y: auto;
     }
-    #mainMenu::-webkit-scrollbar{
+
+    #mainMenu::-webkit-scrollbar {
       width: 0px;
     }
   }
@@ -227,11 +195,12 @@ onUnmounted(() => {
       height: 100%;
       background-color: #ffffff;
     }
-    .full-screen{
+
+    .full-screen {
       position: fixed;
       z-index: 999999;
       left: 0;
-      top:0;
+      top: 0;
       width: 100vw;
       height: 100vh;
     }
@@ -239,6 +208,17 @@ onUnmounted(() => {
 
   .main-layout-sider::-webkit-scrollbar {
     width: 0;
+  }
+  .side-logo{
+    height: 64px;
+  }
+  .side-menu{
+    height: calc(100vh - 64px);
+    overflow-x: hidden;
+    overflow-y: scroll;
+    &::-webkit-scrollbar{
+      width: 0px;
+    }
   }
 
 }

@@ -41,20 +41,27 @@ export const useUserStore = defineStore("user", () => {
             meta:{}
         }
     ]
-    const onSetAppRouters = function (data: Array<object>) {
+    const onSetAppRouters = function (data: object[],parentMeta:any) {
         try {
             data.forEach((item: any) => {
+                // console.log("是什么item",item)
                 if (!!item.path && item.path != '') {
-                    _appRouters.push({
+                    const _obj={
                         path: item.path,
                         name: item.name,
                         component: moudles["../views/" + item.component + ".vue"] ? moudles["../views/" + item.component + ".vue"] : NotFound,
-                        meta: item
-                    })
+                        meta: {
+                            ...item,
+                            // menuPaths:parentMeta.menuPaths.push(item.name)
+                        }
+                    }
+                    console.log("惩恶",_obj)
+                    _appRouters.push(_obj)
+                    if (!!item.children && item.children.length > 0) {
+                        onSetAppRouters(item.children,_obj.meta)
+                    }
                 }
-                if (!!item.children && item.children.length > 0) {
-                    onSetAppRouters(item.children)
-                }
+
             })
         } catch (e) {
             console.error(e)
@@ -92,7 +99,9 @@ export const useUserStore = defineStore("user", () => {
         userInfo.value.homeMenuId = _data.homeMenuId
         userInfo.value.permission = _data.permissions
         userInfo.value.menuData = _data.menuList
-        onSetAppRouters(_data.menuList)
+        onSetAppRouters(_data.menuList,{
+            menuPaths:[]
+        })
         userInfo.value.homePath = findHomePath(_appRouters)
         router.addRoute({
             path: '/',
