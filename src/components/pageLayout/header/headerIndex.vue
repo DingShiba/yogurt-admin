@@ -23,5 +23,9 @@ import BreadCrumb from "@/components/pageLayout/header/components/breadCrumb.vue
   display: flex;
   align-items: center;
   height: 100%;
+  .header-left{
+    display: flex;
+    align-items: center;
+  }
 }
 </style>

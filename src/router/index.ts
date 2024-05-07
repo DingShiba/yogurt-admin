@@ -33,17 +33,14 @@ router.beforeEach(async (to, from, next) => {
             next({name: 'login'})
         } else next()
     } else {
+        // 解决刷新页面的问题
         if (userStore.userInfo.loginName == '') {
             const _res = await userStore.isLogin()
             userStore.setUserInfo(_res)
-            NProgress.done()
-            next({
-                path: to.path
-            })
-        } else {
-            NProgress.done()
-            next()
+            next({path:to.path,replace:true})
         }
+        NProgress.done()
+        next()
     }
     appStore.setCurrentRoute(to)
     NProgress.done()

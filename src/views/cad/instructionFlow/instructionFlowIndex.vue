@@ -36,7 +36,6 @@ onMounted(() => {
     url: "/zuul/workflow1/definition/latest/chuchai",
     method: 'get'
   }).then((res: any) => {
-    console.log(res)
     if (res.data.success) {
       flowData = res.data.data
     }
@@ -46,10 +45,8 @@ onMounted(() => {
     width: 200,
     data:AppData
   })
-  console.log(flowEditor.canvasWidth)
 })
 setTimeout(() => {
-  console.log("zala", flowEditor)
 })
 
 </script>

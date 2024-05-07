@@ -24,44 +24,46 @@ export const useUserStore = defineStore("user", () => {
         homeMenuId: '',
         homePath: '',
         permission: '',
-        menuData: '',
+        menuData: [],
     })
 
     const _appRouters: Array<RouteRecordRaw> = [
         {
-            path: '/404',
-            name: 'any',
-            component: NotFound,
-            meta:{}
-        },
-        {
             path: '/:pathMatch(.*)*',
             name: 'notFound',
-            redirect: "/404",
-            meta:{}
+            meta: {
+                hideMenu: true,
+            },
+            children: [
+                {
+                    path: '/:pathMatch(.*)*',
+                    name: "notFound",
+                    component: NotFound,
+                    meta: {
+                        title: 'PageNotFound',
+                    },
+                },
+            ],
         }
     ]
-    const onSetAppRouters = function (data: object[],parentMeta:any) {
+    const onSetAppRouters = function (data: object[], parentMeta: any) {
         try {
             data.forEach((item: any) => {
-                // console.log("是什么item",item)
-                if (!!item.path && item.path != '') {
-                    const _obj={
-                        path: item.path,
-                        name: item.name,
-                        component: moudles["../views/" + item.component + ".vue"] ? moudles["../views/" + item.component + ".vue"] : NotFound,
-                        meta: {
-                            ...item,
-                            // menuPaths:parentMeta.menuPaths.push(item.name)
-                        }
-                    }
-                    console.log("惩恶",_obj)
-                    _appRouters.push(_obj)
-                    if (!!item.children && item.children.length > 0) {
-                        onSetAppRouters(item.children,_obj.meta)
+                const _menuPath = item.parentIds || [];
+                _menuPath.push(item.name)
+                const _obj = {
+                    path: item.path,
+                    name: item.name,
+                    component: moudles["../views/" + item.component + ".vue"] ? moudles["../views/" + item.component + ".vue"] : NotFound,
+                    meta: {
+                        ...item,
+                        menuPaths: _menuPath
                     }
                 }
-
+                _appRouters.unshift(_obj)
+                if (!!item.children && item.children.length > 0) {
+                    onSetAppRouters(item.children, _obj.meta)
+                }
             })
         } catch (e) {
             console.error(e)
@@ -99,9 +101,7 @@ export const useUserStore = defineStore("user", () => {
         userInfo.value.homeMenuId = _data.homeMenuId
         userInfo.value.permission = _data.permissions
         userInfo.value.menuData = _data.menuList
-        onSetAppRouters(_data.menuList,{
-            menuPaths:[]
-        })
+        onSetAppRouters(_data.menuList, {})
         userInfo.value.homePath = findHomePath(_appRouters)
         router.addRoute({
             path: '/',
@@ -110,9 +110,15 @@ export const useUserStore = defineStore("user", () => {
             children: _appRouters
         })
         // 获取主页,把root替换成主页name
-        /*  router.push({
-              name:"root"
-          })*/
+     /*    setTimeout(()=>{
+             router.push({
+                 name: "8a8181f170a306f40170a316d10900001"
+             })
+         },1000)*/
+
+        /*     router.push({
+                 name: "40288b86692deebf01692f0e923a0017"
+             })*/
     }
 
     function findHomePath(routes: Array<RouteRecordRaw>) {
@@ -139,7 +145,7 @@ export const useUserStore = defineStore("user", () => {
             homeMenuId: '',
             homePath: '',
             permission: '',
-            menuData: '',
+            menuData: [],
         }
     }
     const logOut = function () {

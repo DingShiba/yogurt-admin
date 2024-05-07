@@ -51,13 +51,11 @@ const formState=reactive({
 })
 // const  modules=import.meta.glob("")
 const onSubmit=function (){
-  console.log("回调")
   $http({
     url:"/zuul/oauth/",
     data: qs.stringify(formState),
     method: "post"
   }).then((res:any)=>{
-    console.log(res)
     if(res.data.success){
       // console.log("cookie",Cookies.get("LESITSID"))
       // Cookies.set("LESITSID", res.data.data, { expires: 1 })

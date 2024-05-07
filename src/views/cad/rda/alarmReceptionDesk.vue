@@ -6,6 +6,6 @@
 import {ref, reactive, onMounted, onUnmounted} from 'vue'
 </script>
 
-<style scoped lang="less" lang="less">
+<style scoped lang="less">
 
 </style>

@@ -1,32 +1,64 @@
 <template>
-<div class="bread-crumb">
-</div>
+  <div class="bread-crumb">
+    <a-breadcrumb>
+      <template v-for="(routeItem, rotueIndex) in menus" :key="routeItem?.name">
+        <a-breadcrumb-item>
+          {{ routeItem.title }}
+          <template v-if="routeItem?.children?.length" #overlay>
+            <a-menu :selected-keys="getSelectKeys(rotueIndex)">
+              <template v-for="childItem in routeItem?.children" :key="childItem.name">
+                <a-menu-item
+                    @click="clickMenuItem(childItem)"
+                >
+                  {{childItem.title}}
+                </a-menu-item>
+              </template>
+            </a-menu>
+          </template>
+        </a-breadcrumb-item>
+      </template>
+    </a-breadcrumb>
+  </div>
 </template>
 
 <script setup lang="ts">
 import {ref, reactive, onMounted, onUnmounted, computed, watch} from 'vue'
 import {useUserStore} from "@/stores/user";
-import {useRouter,useRoute, type RouteRecordRaw} from "vue-router";
+import {useRouter, useRoute, type RouteRecordRaw} from "vue-router";
 
-const userStore=useUserStore()
-defineProps({
-
-})
+const userStore = useUserStore()
 const router = useRouter();
-const route = useRoute();
-const _menuData=userStore.userInfo.menuData
-console.log("菜单数据",router.getRoutes())
-watch(route,()=>{
-  console.log("菜单数据",route)
-})
+const currentRoute = useRoute();
+const _menuData:object[] = userStore.userInfo.menuData
+const menus = computed(() => {
+  if (currentRoute.meta?.menuPaths) {
+    let children:object[] = _menuData;
+    const paths = currentRoute.meta?.menuPaths?.map((item: any) => {
+      const a = children.find((n: any) => n.name === item);
+      children = a?.children || [];
+      return a;
+    });
+    return [
+      {
+        name: '__index',
+        title: '首页',
+        children: _menuData,
+      },
+      ...paths,
+    ];
+  }
+  return currentRoute.matched;
+});
 
-const _menus=computed(()=>{
-  // _menuData.forEach(item)
-  // return _currentRoute
+const getSelectKeys = (rotueIndex: number) => {
+  return [menus.value[rotueIndex + 1]?.name] as string[];
+};
+const clickMenuItem = (menuItem: RouteRecordRaw) => {
+  const to = typeof menuItem.redirect === 'string' ? menuItem.redirect : menuItem;
+  router.push(to);
+};
+watch(currentRoute, () => {
 })
-function getMenuChildren(){
-
-}
 </script>
 
 <style scoped lang="less">

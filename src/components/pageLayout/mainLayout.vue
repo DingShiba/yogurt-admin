@@ -10,6 +10,7 @@
       <a-layout>
         <a-layout-sider v-if="layout=='horizontal'"
                         collapsible
+                        :trigger="null"
                         v-model:collapsed="collapsed" style="height: 100vh">
           <Logo class="side-logo" :collapsed="collapsed"></Logo>
           <Menu :items="items" class="side-menu"></Menu>
@@ -28,6 +29,9 @@
               </template>
             </Header>
           </a-layout-header>
+          <a-layout-content>
+            <RouterView />
+          </a-layout-content>
         </a-layout>
       </a-layout>
     </a-config-provider>
@@ -152,7 +156,8 @@ function handleToggleSide():void{
   .trigger-icon{
     width: 30px;
     height: 30px;
-    display: inline-block;
+    display: flex;
+    align-items: center;
 /*    &:hover{
       background-color: rgba(0, 0, 0, 0.06);
     }
