@@ -62,8 +62,9 @@ const onSubmit=function (){
       userStore.isLogin().then((res:any)=>{
         if(res!==false) {
           userStore.setUserInfo(res)
+          console.log("不知道",userStore.userInfo.homePath)
           router.push({
-            path:userStore.userInfo.homePath
+            name:userStore.userInfo.homePath
           })
         }
       })

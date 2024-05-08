@@ -1,7 +1,7 @@
 <template>
   <a-menu
       v-model:selected-keys="selectedKeys"
-      :open-keys="layoutMode=='horizontal'?openKey:[]"
+      :open-keys="openKey"
       id="mainMenu"
       mode="inline"
       :items="items"
@@ -17,18 +17,25 @@ import router from "@/router";
 import {useRoute} from "vue-router";
 import {useAppStore} from "@/stores/app";
 import {computed, reactive, ref, watch} from "vue";
+
 defineProps({
-  items:Array
+  items: Array
 
 })
-const appStore=useAppStore()
-const currentRoute=useRoute()
-const selectedKeys=ref([currentRoute.name])
-const openKey=currentRoute.meta.menuPaths
-const layoutMode=computed(()=>appStore.appInfo.layout)
-
-watch(selectedKeys,(value)=>{
+const appStore = useAppStore()
+const currentRoute = useRoute()
+// const selectedKeys=computed(()=>[currentRoute.name])
+const selectedKeys = ref<string[]>([currentRoute.name as string])
+const layoutMode = computed(() => appStore.appInfo.layout)
+const openKey = computed(() => {
+  return layoutMode.value == 'horizontal' ? currentRoute.meta.menuPaths : []
 })
+watch(
+    () => currentRoute.name,
+    (value) => {
+      selectedKeys.value=[value as string]
+    }
+)
 // 处理选中
 const onSelect: MenuProps['onSelect'] = function (item: any) {
   router.push({

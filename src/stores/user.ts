@@ -27,42 +27,27 @@ export const useUserStore = defineStore("user", () => {
         menuData: [],
     })
 
-    const _appRouters: Array<RouteRecordRaw> = [
-        {
-            path: '/:pathMatch(.*)*',
-            name: 'notFound',
-            meta: {
-                hideMenu: true,
-            },
-            children: [
-                {
-                    path: '/:pathMatch(.*)*',
-                    name: "notFound",
-                    component: NotFound,
-                    meta: {
-                        title: 'PageNotFound',
-                    },
-                },
-            ],
-        }
-    ]
-    const onSetAppRouters = function (data: object[], parentMeta: any) {
+    const _appRouters: Array<RouteRecordRaw> = []
+    const onSetAppRouters = function (data: object[]) {
         try {
             data.forEach((item: any) => {
                 const _menuPath = item.parentIds || [];
                 _menuPath.push(item.name)
+                let _redirectName = findRedirctName(item)
                 const _obj = {
                     path: item.path,
                     name: item.name,
                     component: moudles["../views/" + item.component + ".vue"] ? moudles["../views/" + item.component + ".vue"] : NotFound,
                     meta: {
                         ...item,
-                        menuPaths: _menuPath
+                        menuPaths: _menuPath,
+                        redirect: _redirectName,
                     }
                 }
-                _appRouters.unshift(_obj)
+                _appRouters.push(_obj)
                 if (!!item.children && item.children.length > 0) {
-                    onSetAppRouters(item.children, _obj.meta)
+                    item.redirect = _redirectName
+                    onSetAppRouters(item.children)
                 }
             })
         } catch (e) {
@@ -70,8 +55,15 @@ export const useUserStore = defineStore("user", () => {
         }
 
     }
+    const findRedirctName = function (obj: any):any {
+        if (!obj.children || obj.children.length == 0) {
+            return obj.name
+        } else {
+            return  findRedirctName(obj.children[0])
+        }
+    }
     const isLogin = function () {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             axios({
                 url: "zuul/oauth/isLogin",
                 method: 'get',
@@ -101,8 +93,25 @@ export const useUserStore = defineStore("user", () => {
         userInfo.value.homeMenuId = _data.homeMenuId
         userInfo.value.permission = _data.permissions
         userInfo.value.menuData = _data.menuList
-        onSetAppRouters(_data.menuList, {})
+        onSetAppRouters(_data.menuList)
         userInfo.value.homePath = findHomePath(_appRouters)
+        _appRouters.push({
+            path: '/:pathMatch(.*)*',
+            name: 'notFound',
+            meta: {
+                hideMenu: true,
+            },
+            children: [
+                {
+                    path: '/:pathMatch(.*)*',
+                    name: "notFound",
+                    component: NotFound,
+                    meta: {
+                        title: 'PageNotFound',
+                    },
+                },
+            ],
+        })
         router.addRoute({
             path: '/',
             name: 'root',
@@ -110,11 +119,11 @@ export const useUserStore = defineStore("user", () => {
             children: _appRouters
         })
         // 获取主页,把root替换成主页name
-     /*    setTimeout(()=>{
-             router.push({
-                 name: "8a8181f170a306f40170a316d10900001"
-             })
-         },1000)*/
+        /*    setTimeout(()=>{
+                router.push({
+                    name: "8a8181f170a306f40170a316d10900001"
+                })
+            },1000)*/
 
         /*     router.push({
                  name: "40288b86692deebf01692f0e923a0017"

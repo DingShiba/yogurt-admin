@@ -40,22 +40,28 @@ const menus = computed(() => {
     });
     return [
       {
-        name: '__index',
+        name: '_index',
         title: '首页',
         children: _menuData,
       },
       ...paths,
     ];
   }
-  return currentRoute.matched;
+  return [{
+    name: '_index',
+    title: '首页',
+    children: _menuData,
+  }]
 });
 
 const getSelectKeys = (rotueIndex: number) => {
   return [menus.value[rotueIndex + 1]?.name] as string[];
 };
 const clickMenuItem = (menuItem: RouteRecordRaw) => {
-  const to = typeof menuItem.redirect === 'string' ? menuItem.redirect : menuItem;
-  router.push(to);
+
+  router.push({
+    name:menuItem.redirect?menuItem.redirect:menuItem.name
+  });
 };
 watch(currentRoute, () => {
 })
