@@ -38,7 +38,6 @@
 
 <script setup lang="ts">
 import {ref, reactive, onMounted, onUnmounted, inject} from 'vue'
-import Cookies from "js-cookie";
 import {useUserStore} from "@/stores/user";
 import qs from 'qs'
 import router from "@/router";
@@ -62,10 +61,17 @@ const onSubmit=function (){
       userStore.isLogin().then((res:any)=>{
         if(res!==false) {
           userStore.setUserInfo(res)
-          console.log("不知道",userStore.userInfo.homePath)
-          router.push({
-            name:userStore.userInfo.homePath
-          })
+          const _hasHome=router.hasRoute(userStore.userInfo.homeMenuId)
+          if(_hasHome){
+            router.push({
+              name:userStore.userInfo.homeMenuId
+            })
+          }else {
+            router.push({
+              path:"/defaultHome"
+            })
+          }
+
         }
       })
     }

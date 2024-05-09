@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import zhCN from 'ant-design-vue/es/locale/zh_CN';
-import dayjs from 'dayjs';
-import 'dayjs/locale/zh-cn';
-/*import moment from "moment";
-moment.locale("zh-cn");*/
-
+import {useThemeStore} from "@/stores/theme";
+import {computed} from "vue";
+const themeStore=useThemeStore()
+const theme=computed(()=>themeStore.themeConfig)
 </script>
 
 <template>
-  <a-config-provider :locale="zhCN">
+  <a-config-provider :theme="theme">
     <RouterView />
   </a-config-provider>
 </template>

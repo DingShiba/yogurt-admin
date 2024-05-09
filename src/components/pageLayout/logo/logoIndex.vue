@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, reactive, onMounted, onUnmounted,defineProps} from 'vue'
+import {ref, reactive, onMounted, onUnmounted} from 'vue'
 import {useAppStore} from "@/stores/app";
 defineProps({
   collapsed: Boolean

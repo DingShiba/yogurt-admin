@@ -27,13 +27,21 @@ export const useUserStore = defineStore("user", () => {
         menuData: [],
     })
 
-    const _appRouters: Array<RouteRecordRaw> = []
+    const _appRouters: Array<RouteRecordRaw> = [
+       /* {
+            path: '/defaultHome',
+            name: 'defaultHome',
+            component: ()=> import('../components/defaultHome/homeIndex.vue'),
+            meta: {
+            }
+        }*/
+    ]
     const onSetAppRouters = function (data: object[]) {
         try {
             data.forEach((item: any) => {
                 const _menuPath = item.parentIds || [];
                 _menuPath.push(item.name)
-                let _redirectName = findRedirctName(item)
+                const _redirectName = findRedirctName(item)
                 const _obj = {
                     path: item.path,
                     name: item.name,
@@ -118,16 +126,6 @@ export const useUserStore = defineStore("user", () => {
             component: MainLayout,
             children: _appRouters
         })
-        // 获取主页,把root替换成主页name
-        /*    setTimeout(()=>{
-                router.push({
-                    name: "8a8181f170a306f40170a316d10900001"
-                })
-            },1000)*/
-
-        /*     router.push({
-                 name: "40288b86692deebf01692f0e923a0017"
-             })*/
     }
 
     function findHomePath(routes: Array<RouteRecordRaw>) {
@@ -138,7 +136,7 @@ export const useUserStore = defineStore("user", () => {
         return _path
     }
 
-// 退出时清除用户信息
+    // 退出时清除用户信息
     const clearUserInfo = function () {
         userInfo.value = {
             userName: '',

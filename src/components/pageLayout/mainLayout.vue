@@ -1,12 +1,5 @@
 <template>
   <div class="main-layout">
-    <a-config-provider
-        :theme="{
-          token: {
-            colorPrimary: '#165dff'
-          }
-        }"
-    >
       <a-layout>
         <a-layout-sider v-if="layout=='horizontal'"
                         collapsible
@@ -29,12 +22,13 @@
               </template>
             </Header>
           </a-layout-header>
-          <a-layout-content>
-            <RouterView />
+          <a-layout-content class="main-layout-content">
+            <div :class="mainContentClassName">
+              <RouterView  />
+            </div>
           </a-layout-content>
         </a-layout>
       </a-layout>
-    </a-config-provider>
   </div>
 </template>
 
@@ -193,14 +187,11 @@ function handleToggleSide():void{
   }
 
   .main-layout-content {
-    padding: 24px;
-
     .main-container {
       width: 100%;
       height: 100%;
       background-color: #ffffff;
     }
-
     .full-screen {
       position: fixed;
       z-index: 999999;
@@ -208,6 +199,7 @@ function handleToggleSide():void{
       top: 0;
       width: 100vw;
       height: 100vh;
+      background-color: #f5f5f5;
     }
   }
 
