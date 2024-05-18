@@ -1,5 +1,5 @@
 <template>
-<div> </div>
+<div>plan </div>
 </template>
 
 <script setup lang="ts">

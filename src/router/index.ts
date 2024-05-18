@@ -29,18 +29,20 @@ router.beforeEach(async (to, from, next) => {
     NProgress.start()
     if (!LESITSCOOKIE) {
         if (to.name !== 'login') {
-            NProgress.done()
             next({name: 'login'})
-        } else next()
+        } else{
+            next()
+        }
     } else {
         // 解决刷新页面的问题
         if (userStore.userInfo.loginName == '') {
             const _res = await userStore.isLogin()
             userStore.setUserInfo(_res)
             next({path:to.path,replace:true})
+
+        }else {
+            next()
         }
-        NProgress.done()
-        next()
     }
     appStore.setCurrentRoute(to)
     NProgress.done()

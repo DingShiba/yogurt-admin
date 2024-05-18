@@ -42,7 +42,10 @@ export interface rdaInfoInter {
     },
     alarmEntry: {
         visible:boolean,
-        ringEvent:object|null
+        ringEvent: {
+            id:string,
+            [propName:string]:any
+        } |null
     }
 }
 export interface transferEventInter{

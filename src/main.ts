@@ -1,4 +1,4 @@
-import './assets/main.css'
+import './assets/base.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -8,8 +8,7 @@ import "ant-design-vue/dist/reset.css"
 import App from './App.vue'
 import router from './router'
 import axios from 'axios'
-import moment from "moment";
-moment.locale("zh-cn");
+import moment from "@/utils/moment";
 const app = createApp(App)
 
 app.use(createPinia())
@@ -17,5 +16,6 @@ app.use(router)
 app.use(Antd)
 app.use(moment)
 app.provide('$http',axios)
+app.provide('$moment',moment)
 
 app.mount('#app')

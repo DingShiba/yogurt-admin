@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {reactive, ref} from "vue";
+import {reactive} from "vue";
 
 import {getDipById, getEvent} from '@/views/cad/utils/httpInterfaceApi'
 import type {rdaInfoInter,transferEventInter} from '@/views/cad/types/store'

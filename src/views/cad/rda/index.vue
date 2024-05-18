@@ -16,14 +16,14 @@
       </div>
     </div>
   </div>
-  <transition v-else name="fade">
+  <div v-else>
     <a-spin :spinning="rdaConfigObj.spinning" tip="正在更新配置...">
       <div class="rda-index">
         <a-layout>
           <a-layout-header class="header" theme="light">
             <div>
               <a-space class="logo">
-                <img src="../../../assets/images/china.png" width="45">
+                <img src="@/views/cad/assets/images/logo.png" width="45">
                 <span class="rda-title">接处警系统</span>
               </a-space>
             </div>
@@ -32,13 +32,13 @@
                 <a-space v-if="rdaConfig.baseForm.isRecive"
                          :size="12">
                   <a-tooltip title="手动录入警单">
-                    <a-icon type="plus-square" class="add-alarm"
-                            @click="handleOpenEntry"/>
+                    <PlusSquareOutlined class="add-alarm" @click="handleOpenEntry"/>
+
                   </a-tooltip>
                   <a-divider type="vertical"/>
-                  <span>排队警情：</span>
+<!--                  <span>排队警情：</span>
                   <a-popover v-if="revInitData.length>0">
-                    <template slot="content">
+                    <template #content>
                       <vue-scroll style="height: 150px;">
                         <div v-for="(item,index) in revInitData" :key="item.id"
                              style="height: 35px;cursor: pointer;border-bottom: 1px solid #efefef"
@@ -69,12 +69,12 @@
                     <a-badge :count="revInitData.length"
                              showZero
                              :number-style="{ backgroundColor: '#52c41a' }"/>
-                  </a-popover>
-                  <a-badge v-else
+                  </a-popover>-->
+<!--                  <a-badge v-else
                            :count="revInitData.length"
                            showZero
-                           :number-style="{ backgroundColor: '#52c41a' }"/>
-                  <a-divider type="vertical"/>
+                           :number-style="{ backgroundColor: '#52c41a' }"/>-->
+<!--                  <a-divider type="vertical"/>-->
                 </a-space>
                 <span>连接状态</span>
                 <a-badge :status="websocketStatus?'success':'error'"
@@ -87,40 +87,39 @@
                 </div>
                 <a-divider type="vertical"/>
                 <span> 欢迎您，{{ userStore.userInfo.userName }}</span>
-                <a-avatar icon="user"/>
-                <a-icon type="poweroff"
-                        @click="handleGoHome"
-                        title="注销系统"/>
+                <a-avatar style="background-color: #87d068">
+                  <template #icon>
+                    <UserOutlined />
+                  </template>
+                </a-avatar>
+                <PoweroffOutlined title="注销系统"  @click="handleGoHome"/>
               </a-space>
             </div>
           </a-layout-header>
           <a-layout>
             <a-layout-sider
                 v-model="collapsed"
-                collapsible
-                theme="dark"
-                style="font-family: MiSans-Medium;font-weight: 500;"
-                width="200">
+                theme="light"
+                width="150">
               <a-menu
                   @select="selectMenu"
                   theme="light"
-                  v-model="currentMenu"
-                  :style="{ lineHeight: '64px' }"
+                  v-model:selected-keys="currentMenu"
+                  :style="{ lineHeight: '64px' ,height:'100%'}"
               >
                 <a-menu-item v-for="item in menuData.filter(_menu=>!!_menu.isShow)"
                              :key="item.key">
-                  <a-icon :type="item.icon"/>
                   <span>{{ item.name }}</span>
                 </a-menu-item>
               </a-menu>
             </a-layout-sider>
-            <a-layout class="main-container"
+<!--            <a-layout class="main-container"
                       style="padding: 12px;background: rgb(240, 242, 245);">
-              <a-layout-content style="margin: 0; min-height: 280px;position: relative;">
-                <component v-if="!!componentId"
-                           :is="componentId"></component>
-              </a-layout-content>
-            </a-layout>
+&lt;!&ndash;              <a-layout-content style="margin: 0; min-height: 280px;position: relative;">
+&lt;!&ndash;                <component v-if="!!componentId"
+                           :is="componentId"></component>&ndash;&gt;
+              </a-layout-content>&ndash;&gt;
+            </a-layout>-->
           </a-layout>
         </a-layout>
         <div v-if="alarmEntry.visible"
@@ -138,9 +137,9 @@
             message="系统检测到您是初次使用，请首先确认个人用户配置！"
             type="info"
             showIcon/>
-        <div class="rda-settings-container">
+<!--        <div class="rda-settings-container">
           <rda-setting @close="rdaConfigObj.visible=false"></rda-setting>
-        </div>
+        </div>-->
       </a-modal>
       <!--      TODO : 暂时隐藏配置窗口-->
       <a-drawer :visible="settingVisible"
@@ -148,35 +147,44 @@
                 :get-container="getElement"
                 :closable="false"
                 :width="400">
-        <template v-slot:handle>
+        <template #handle>
           <a-button
               class="rda-drawer-handle"
               @click="settingVisible=!settingVisible"
               type="primary" :icon="settingVisible?'close':'setting'">
           </a-button>
         </template>
-        <rda-setting></rda-setting>
+<!--        <rda-setting></rda-setting>-->
 
       </a-drawer>
     </a-spin>
-  </transition>
+  </div>
 </template>
 
 <script setup lang="ts">
-import {ref, reactive, onMounted, onUnmounted, computed, inject} from 'vue'
-import  moment from 'moment'
+import {ref,markRaw, reactive, onMounted, computed, inject,type Component} from 'vue'
+
 import {LesStomp} from "@/views/cad/utils/lesStomp";
 import {
   getWorkFlowData,
   getOfficeChildByOAuth
 } from "@/views/cad/utils/httpInterfaceApi";
 import {Modal,message} from "ant-design-vue";
+import {UserOutlined,PoweroffOutlined,PlusSquareOutlined } from "@ant-design/icons-vue";
 import {useRdaStore} from "@/views/cad/rda/store/rda";
 import {useUserStore} from "@/stores/user";
 import type {receiveInter} from "@/views/cad/types/rda";
 import {routerBackToHome} from '@/views/cad/utils/common'
+import AlarmReceptionDesk from "@/views/cad/rda/alarmReceptionDesk.vue";
+import Query from "@/views/cad/rda/query.vue";
+import TrafficStatistics from "@/views/cad/rdaAnalyze/trafficStatistics.vue";
+import Plan from "@/views/cad/plan/index.vue"
+import AlarmEntryForm from "@/views/cad/rda/components/alarmEntryForm.vue";
+
 
 const $http: any = inject('$http')
+const $moment:any=inject('$moment')
+
 const rdaStore = useRdaStore()
 const userStore = useUserStore()
 let initLoadObj = reactive({
@@ -196,35 +204,35 @@ const menuData = reactive([
     name: "接警台",
     key: "alarmReceptionDesk",
     icon: "form",
-    component: import("./alarmReceptionDesk.vue"),
+    component: markRaw(AlarmReceptionDesk),
     isShow: false
   },
   {
     name: "警情查询",
     key: "query",
     icon: "file-search",
-    component: import("./query.vue"),
+    component: markRaw(Query),
     isShow: true
   },
   {
     name: "统计分析",
     key: "trafficStatistics",
     icon: "bar-chart",
-    component: import("../rdaAnalyze/trafficStatistics.vue"),
+    component: markRaw(TrafficStatistics),
     isShow: true
   },
   {
     key: "plan",
     icon: "laptop",
     name: "预案管理",
-    component: import("../plan/index.vue"),
+    component: markRaw(Plan),
     isShow: true
   }
 ])
-let currentMenu:string[]= reactive([])
+let currentMenu= ref<string[]>([''])
 let rdaWS: any = undefined,
     rdaTelWS: any = undefined;
-let componentId: any = undefined;
+let componentId = ref<Component>();
 let websocketStatus = ref(false)
 type Clock = {
   timer: number | null,
@@ -254,6 +262,8 @@ const alarmEntry = computed(() => {
   return rdaStore.rdaInfo.alarmEntry;
 })
 
+
+
 // 打开接入电话的表单
 function handleOpenEntry(obj: receiveInter): void {
   rdaStore.setAlarmEntry({
@@ -268,12 +278,14 @@ function handleGoHome(): void {
 }
 
 function selectMenu(info: any) {
+
   setCurrentComponentId(info.key)
 }
 
 function setCurrentComponentId(key: string) {
   const _component = menuData.filter(item => item.key == key)[0]
-  componentId = () => _component.component
+  componentId.value = _component.component
+  console.log("componentId",componentId)
 }
 
 function handleCloseAlarmEntry() {
@@ -304,7 +316,7 @@ function getElement(): HTMLElement {
 
 function initClock() {
   clockObj.timer = setInterval(() => {
-    const _clock = moment().format("YYYY-MM-DD HH:mm:ss dddd")
+    const _clock = $moment().format("YYYY-MM-DD HH:mm:ss dddd")
     const _clockArr = _clock.split(" ")
     clockObj.day = _clockArr[0]
     clockObj.second = _clockArr[1]
@@ -470,10 +482,10 @@ function handleMenuData() {
   const _fil:any = menuData.filter((item:any) => item.isShow == true)
   if (_fil.length > 0) {
     setCurrentComponentId(_fil[0].key)
-    currentMenu = [_fil["0"].key]
+    currentMenu.value = [_fil["0"].key as string]
   }
-
 }
+
 function handleRdaConfig(data:any) {
   // 检测初次登陆,确认配置
   if (!!data && !!data.settings) {
@@ -520,7 +532,7 @@ function getEventById(id:string) {
 }
 async function handleTelEvent(obj:any) {
   const _rev:any = await getEventById(obj.revId)
-  if (!!alarmEntry.value.ringEvent && _rev.id == alarmEntry.value.ringEvent.id) {
+  if (!!alarmEntry.value.ringEvent && _rev.id == alarmEntry.value.ringEvent.id!) {
     rdaStore.setAlarmEntry({
       visible: true,
       ringEvent: _rev
@@ -638,7 +650,7 @@ onMounted(() => {
   position: relative;
   width: 100vw;
   height: 100vh;
-  font-family: MiSans;
+  font-family: MiSans-Regular;
   .rda-drawer-handle {
     position: absolute;
     top: 240px;
@@ -686,7 +698,7 @@ onMounted(() => {
   padding: 0px;
   background: linear-gradient(90deg, #165DFF 0%, #1890ff 100%);
   box-shadow: 0px 4px 4px 0px #B8C1C4, 0px 2px 12px 0px #ECEEF3;
-  font-family: MiSans-Medium;
+  font-family: MiSans-Regular;
   color: #fff;
   font-weight: 500;
   line-height: unset;
@@ -703,7 +715,7 @@ onMounted(() => {
 .rda-title {
   font-size: 30px;
   font-weight: 500;
-  font-family: YouSheBiaoTiHei;
+  font-family: MiSans-Bold;
 }
 
 .main-container {
@@ -720,7 +732,7 @@ onMounted(() => {
   justify-content: space-between;
 }
 
-.header-user /deep/ .ant-badge-status-dot {
+.header-user  :deep(.ant-badge-status-dot){
   width: 10px;
   height: 10px;
 }
